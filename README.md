@@ -11,14 +11,13 @@ An enterprise-grade, ML-driven flood forecasting and controlled-release recommen
 1. [Project Overview](#1-project-overview)
 2. [Architecture](#2-architecture)
 3. [Mathematical Logic](#3-mathematical-logic)
-4. [Project Structure](#4-project-structure)
-5. [Installation](#5-installation)
-6. [Configuration](#6-configuration)
-7. [CLI Usage](#7-cli-usage)
-8. [API Reference](#8-api-reference)
-9. [Running Tests](#9-running-tests)
-10. [Database Migration to PostgreSQL](#10-database-migration-to-postgresql)
-11. [Legal Notice](#11-legal-notice)
+4. [Installation](#4-installation)
+5. [Configuration](#5-configuration)
+6. [CLI Usage](#6-cli-usage)
+7. [API Reference](#7-api-reference)
+8. [Running Tests](#8-running-tests)
+9. [Database Migration to PostgreSQL](#9-database-migration-to-postgresql)
+10. [Legal Notice](#10-legal-notice)
 
 ---
 
@@ -50,20 +49,20 @@ The **Dam Regulation System (DRS)** addresses a critical gap in water-resource m
 
 ```
 ┌─────────────────────────────────────────────────────┐
-│                   Client Layer                       │
-│          FastAPI (HTTP/REST)  │  Click (CLI)         │
+│                   Client Layer                      │
+│          FastAPI (HTTP/REST)  │  Click (CLI)        │
 └─────────────────┬───────────────────────────────────┘
                   │
 ┌─────────────────▼───────────────────────────────────┐
-│                  Service Layer                       │
-│  DataService │ TrainingService │ ForecastService     │
-│                  RecommendationService               │
-└──────┬────────────────────┬────────────────────────┘
+│                  Service Layer                      │
+│  DataService │ TrainingService │ ForecastService    │
+│                  RecommendationService              │
+└──────┬────────────────────┬─────────────────────────┘
        │                    │
 ┌──────▼──────┐    ┌────────▼─────────────────────────┐
-│  SQLAlchemy │    │   scikit-learn Pipeline            │
-│  Async ORM  │    │   (StandardScaler + LinReg)        │
-│  SQLite /   │    │   Serialised via joblib            │
+│  SQLAlchemy │    │   scikit-learn Pipeline          │
+│  Async ORM  │    │   (StandardScaler + LinReg)      │
+│  SQLite /   │    │   Serialised via joblib          │
 │  PostgreSQL │    └──────────────────────────────────┘
 └─────────────┘
 ```
@@ -146,55 +145,7 @@ $$L_d^{\text{proj}} = \max\!\left(\hat{L}_d - \sum_{i=1}^{d} r_i,\ L_{\text{dead
 
 ---
 
-## 4. Project Structure
-
-```
-dam-regulation-system/
-├── src/
-│   └── drs/
-│       ├── api/
-│       │   ├── app.py                  # FastAPI factory + lifespan
-│       │   └── routers/
-│       │       ├── reservoirs.py       # CRUD
-│       │       ├── observations.py     # Data ingestion
-│       │       ├── training.py         # ML training endpoint
-│       │       ├── forecast.py         # Forecast endpoint
-│       │       └── recommendations.py  # Full pipeline endpoint
-│       ├── cli/
-│       │   └── commands.py             # Click CLI (drs command)
-│       ├── core/
-│       │   ├── config.py               # Pydantic-Settings
-│       │   └── logging.py              # Loguru setup
-│       ├── db/
-│       │   ├── engine.py               # AsyncEngine + session factory
-│       │   ├── models.py               # ORM: Reservoir, Observation, ModelArtifact
-│       │   └── seed.py                 # Synthetic data seeder
-│       ├── schemas/
-│       │   ├── reservoir.py
-│       │   ├── observation.py
-│       │   ├── forecast.py
-│       │   └── recommendation.py
-│       └── services/
-│           ├── data_service.py          # CRUD abstraction
-│           ├── training_service.py      # Steps 1–2: Dataset + Model training
-│           ├── forecast_service.py      # Steps 3–5: Forecast + Overflow detection
-│           └── recommendation_service.py # Steps 6–7: Release schedule + Report
-├── tests/
-│   ├── conftest.py                      # Fixtures + in-memory DB
-│   ├── test_recommendation.py
-│   └── test_forecast.py
-├── storage/                             # Git-ignored runtime data
-│   ├── drs.db                           # SQLite database
-│   └── models/                          # Serialised .joblib model artifacts
-├── .env                                 # Git-ignored local config
-├── .env.example                         # Committed template
-├── pyproject.toml                        # Build metadata + dependencies (uv)
-└── README.md
-```
-
----
-
-## 5. Installation
+## 4. Installation
 
 ### Prerequisites
 
@@ -221,7 +172,7 @@ uv run drs init --seed
 
 ---
 
-## 6. Configuration
+## 5. Configuration
 
 All configuration is read from the `.env` file in the project root.
 
@@ -237,7 +188,7 @@ All configuration is read from the `.env` file in the project root.
 
 ---
 
-## 7. CLI Usage
+## 6. CLI Usage
 
 ```bash
 uv run drs --help
@@ -266,7 +217,7 @@ uv run drs serve --reload
 
 ---
 
-## 8. API Reference
+## 7. API Reference
 
 Start the server with `uv run drs serve`, then open:
 
@@ -303,7 +254,7 @@ curl -X POST http://127.0.0.1:8000/api/v1/reservoirs/{id}/recommend \
 
 ---
 
-## 9. Running Tests
+## 8. Running Tests
 
 ```bash
 # All tests
@@ -318,7 +269,7 @@ uv run pytest tests/test_recommendation.py -v
 
 ---
 
-## 10. Database Migration to PostgreSQL
+## 9. Database Migration to PostgreSQL
 
 1. `uv add asyncpg`
 2. Set in `.env`: `DATABASE_URL=postgresql+asyncpg://user:password@localhost:5432/drs`
@@ -328,7 +279,7 @@ No Python code changes required.
 
 ---
 
-## 11. Legal Notice
+## 10. Legal Notice
 
 ```
 Copyright (C) 2026  DRS Engineering
