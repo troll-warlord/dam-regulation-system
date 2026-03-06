@@ -34,7 +34,6 @@ _IN_MEMORY_URL = "sqlite+aiosqlite://"  # Pure in-memory, not shared between con
 
 @pytest_asyncio.fixture(scope="function")
 async def db_session() -> AsyncGenerator[AsyncSession, None]:
-
     """
     Yield a fresh AsyncSession backed by an in-memory SQLite database.
 
