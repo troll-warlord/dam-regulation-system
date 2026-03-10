@@ -206,7 +206,7 @@ def load_model(reservoir_name: str) -> Pipeline:
     path = _artifact_path(reservoir_name)
     if not path.exists():
         raise FileNotFoundError(f"No trained model found for reservoir '{reservoir_name}'. Run POST /api/v1/reservoirs/{{id}}/train first.")
-    return joblib.load(path)  # type: ignore[no-any-return]
+    return joblib.load(path)
 
 
 # ---------------------------------------------------------------------------

@@ -23,7 +23,7 @@ from typing import TYPE_CHECKING
 from loguru import logger
 
 if TYPE_CHECKING:
-    from loguru import Logger
+    from loguru import Logger, Record
 
 # Project root: src/drs/core/logging.py → up 4 levels
 _LOG_DIR: Path = Path(__file__).resolve().parent.parent.parent.parent / "storage" / "logs"
@@ -55,7 +55,7 @@ def clear_reservoir_context() -> None:
     _reservoir_ctx.set(None)
 
 
-def _patch_context(record: dict) -> None:
+def _patch_context(record: Record) -> None:
     """Loguru patcher: injects current contextvar values into every log record."""
     ctx = _reservoir_ctx.get() or {}
     name = ctx.get("reservoir_name", "")
@@ -147,7 +147,7 @@ class _InterceptHandler(_stdlib.Handler):
         except ValueError:
             level = record.levelno
         # Override {module} with the stdlib logger name for consistent display.
-        logger.patch(lambda r: r.update(module=record.name)).opt(exception=record.exc_info).log(level, record.getMessage())
+        logger.patch(lambda r: r.update({"module": record.name})).opt(exception=record.exc_info).log(level, record.getMessage())
 
 
 def configure_uvicorn_logging() -> None:

@@ -16,9 +16,11 @@ No other code changes are required.
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
 from urllib.parse import urlparse, urlunparse
 
 from sqlalchemy.ext.asyncio import (
+    AsyncEngine,
     AsyncSession,
     async_sessionmaker,
     create_async_engine,
@@ -27,6 +29,9 @@ from sqlalchemy.orm import DeclarativeBase
 
 from drs.core.config import get_settings
 from drs.core.logging import get_logger
+
+if TYPE_CHECKING:
+    from collections.abc import AsyncGenerator
 
 log = get_logger(__name__)
 
@@ -44,7 +49,7 @@ def _scrub_url(url: str) -> str:
     return url
 
 
-def _build_engine() -> object:
+def _build_engine() -> AsyncEngine:
     """Build and return an ``AsyncEngine`` from current settings."""
     cfg = get_settings()
     connect_args: dict[str, object] = {}
@@ -62,10 +67,10 @@ def _build_engine() -> object:
     )
 
 
-engine = _build_engine()  # type: ignore[assignment]
+engine = _build_engine()
 
 AsyncSessionLocal: async_sessionmaker[AsyncSession] = async_sessionmaker(
-    bind=engine,  # type: ignore[arg-type]
+    bind=engine,
     class_=AsyncSession,
     expire_on_commit=False,
     autocommit=False,
@@ -80,12 +85,12 @@ async def init_db() -> None:
     Call this once at application startup (inside the FastAPI lifespan handler
     or the CLI ``init`` command).
     """
-    async with engine.begin() as conn:  # type: ignore[union-attr]
+    async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     log.info("Database schema verified / created.")
 
 
-async def get_db() -> AsyncSession:  # type: ignore[return]
+async def get_db() -> AsyncGenerator[AsyncSession, None]:
     """
     FastAPI dependency that yields a database session and closes it afterward.
 
@@ -94,4 +99,4 @@ async def get_db() -> AsyncSession:  # type: ignore[return]
     >>> async def my_route(db: AsyncSession = Depends(get_db)): ...
     """
     async with AsyncSessionLocal() as session:
-        yield session  # type: ignore[misc]
+        yield session
